@@ -677,79 +677,79 @@ bool rpc_slave::loop(unsigned long recv_timeout, unsigned long send_timeout)
     return false;
 }
 
-#if !defined(ARDUINO_ARCH_ESP8266) && !defined(ARDUINO_ARCH_NRF52840)
-void rpc_can_master::_flush()
-{
-    for (int i = 0, ii = CAN.parsePacket(); i < ii; i++) CAN.read();
-}
-
-bool rpc_can_master::get_bytes(uint8_t *buff, size_t size, unsigned long timeout)
-{
-    size_t i = 0;
-    unsigned long start = millis();
-
-    while (((millis() - start) <= timeout) && (i < size)) {
-        for (int j = 0, jj = CAN.parsePacket(); j < jj; j++) {
-            buff[i++] = CAN.read();
-            if (i >= size) break;
-        }
-    }
-
-    bool ok = i == size;
-    if (!ok) delay(_get_short_timeout);
-    return ok;
-}
-
-bool rpc_can_master::put_bytes(uint8_t *data, size_t size, unsigned long timeout)
-{
-    size_t i = 0;
-    unsigned long start = millis();
-
-    while (((millis() - start) <= timeout) && (i < size)) {
-        if (CAN.beginPacket(__message_id)) {
-            size_t sent = CAN.write(data + i, min(size - i, 8));
-            if (CAN.endPacket()) i += sent;
-        }
-    }
-
-    return i == size;
-}
-
-void rpc_can_slave::_flush()
-{
-    for (int i = 0, ii = CAN.parsePacket(); i < ii; i++) CAN.read();
-}
-
-bool rpc_can_slave::get_bytes(uint8_t *buff, size_t size, unsigned long timeout)
-{
-    size_t i = 0;
-    unsigned long start = millis();
-
-    while (((millis() - start) <= timeout) && (i < size)) {
-        for (int j = 0, jj = CAN.parsePacket(); j < jj; j++) {
-            buff[i++] = CAN.read();
-            if (i >= size) break;
-        }
-    }
-
-    return i == size;
-}
-
-bool rpc_can_slave::put_bytes(uint8_t *data, size_t size, unsigned long timeout)
-{
-    size_t i = 0;
-    unsigned long start = millis();
-
-    while (((millis() - start) <= timeout) && (i < size)) {
-        if (CAN.beginPacket(__message_id)) {
-            size_t sent = CAN.write(data + i, min(size - i, 8));
-            if (CAN.endPacket()) i += sent;
-        }
-    }
-
-    return i == size;
-}
-#endif
+//#if !defined(ARDUINO_ARCH_ESP8266) && !defined(ARDUINO_ARCH_NRF52840)
+//void rpc_can_master::_flush()
+//{
+//    for (int i = 0, ii = CAN.parsePacket(); i < ii; i++) CAN.read();
+//}
+//
+//bool rpc_can_master::get_bytes(uint8_t *buff, size_t size, unsigned long timeout)
+//{
+//    size_t i = 0;
+//    unsigned long start = millis();
+//
+//    while (((millis() - start) <= timeout) && (i < size)) {
+//        for (int j = 0, jj = CAN.parsePacket(); j < jj; j++) {
+//            buff[i++] = CAN.read();
+//            if (i >= size) break;
+//        }
+//    }
+//
+//    bool ok = i == size;
+//    if (!ok) delay(_get_short_timeout);
+//    return ok;
+//}
+//
+//bool rpc_can_master::put_bytes(uint8_t *data, size_t size, unsigned long timeout)
+//{
+//    size_t i = 0;
+//    unsigned long start = millis();
+//
+//    while (((millis() - start) <= timeout) && (i < size)) {
+//        if (CAN.beginPacket(__message_id)) {
+//            size_t sent = CAN.write(data + i, min(size - i, 8));
+//            if (CAN.endPacket()) i += sent;
+//        }
+//    }
+//
+//    return i == size;
+//}
+//
+//void rpc_can_slave::_flush()
+//{
+//    for (int i = 0, ii = CAN.parsePacket(); i < ii; i++) CAN.read();
+//}
+//
+//bool rpc_can_slave::get_bytes(uint8_t *buff, size_t size, unsigned long timeout)
+//{
+//    size_t i = 0;
+//    unsigned long start = millis();
+//
+//    while (((millis() - start) <= timeout) && (i < size)) {
+//        for (int j = 0, jj = CAN.parsePacket(); j < jj; j++) {
+//            buff[i++] = CAN.read();
+//            if (i >= size) break;
+//        }
+//    }
+//
+//    return i == size;
+//}
+//
+//bool rpc_can_slave::put_bytes(uint8_t *data, size_t size, unsigned long timeout)
+//{
+//    size_t i = 0;
+//    unsigned long start = millis();
+//
+//    while (((millis() - start) <= timeout) && (i < size)) {
+//        if (CAN.beginPacket(__message_id)) {
+//            size_t sent = CAN.write(data + i, min(size - i, 8));
+//            if (CAN.endPacket()) i += sent;
+//        }
+//    }
+//
+//    return i == size;
+//}
+//#endif
 
 void rpc_i2c_master::_flush()
 {
@@ -985,66 +985,66 @@ RPC_HARDWARE_SERIAL_UART_SLAVE_IMPLEMENTATION(USB,SERIAL_PORT_USBVIRTUAL)
 
 #undef RPC_HARDWARE_SERIAL_UART_SLAVE_IMPLEMENTATION
 
-#ifdef ARDUINO_ARCH_AVR
-void rpc_software_serial_uart_master::_flush()
-{
-    __serial.listen();
-    for (int i = __serial.available(); i > 0; i--) __serial.read();
-}
-
-bool rpc_software_serial_uart_master::get_bytes(uint8_t *buff, size_t size, unsigned long timeout)
-{
-    (void) timeout;
-    __serial.listen();
-
-    size_t i = 0;
-    unsigned long start = millis();
-
-    while ((i < size) && ((millis() - start) <= 2)) {
-        if (__serial.available()) {
-            buff[i++] = __serial.read();
-            start = millis(); // new 2ms timeout per character
-        }
-    }
-
-    bool ok = i == size;
-    if (!ok) delay(_get_short_timeout);
-    return ok;
-}
-
-bool rpc_software_serial_uart_master::put_bytes(uint8_t *buff, size_t size, unsigned long timeout)
-{
-    (void) timeout;
-    return __serial.write(buff, size) == size;
-}
-
-void rpc_software_serial_uart_slave::_flush()
-{
-    __serial.listen();
-    for (int i = __serial.available(); i > 0; i--) __serial.read();
-}
-
-bool rpc_software_serial_uart_slave::get_bytes(uint8_t *buff, size_t size, unsigned long timeout)
-{
-    (void) timeout;
-    __serial.listen();
-
-    size_t i = 0;
-    unsigned long start = millis();
-
-    while ((i < size) && ((millis() - start) <= 2)) {
-        if (__serial.available()) {
-            buff[i++] = __serial.read();
-            start = millis(); // new 2ms timeout per character
-        }
-    }
-
-    return i == size;
-}
-
-bool rpc_software_serial_uart_slave::put_bytes(uint8_t *buff, size_t size, unsigned long timeout)
-{
-    (void) timeout;
-    return __serial.write(buff, size) == size;
-}
-#endif // ARDUINO_ARCH_AVR
+//#ifdef ARDUINO_ARCH_AVR
+//void rpc_software_serial_uart_master::_flush()
+//{
+//    __serial.listen();
+//    for (int i = __serial.available(); i > 0; i--) __serial.read();
+//}
+//
+//bool rpc_software_serial_uart_master::get_bytes(uint8_t *buff, size_t size, unsigned long timeout)
+//{
+//    (void) timeout;
+//    __serial.listen();
+//
+//    size_t i = 0;
+//    unsigned long start = millis();
+//
+//    while ((i < size) && ((millis() - start) <= 2)) {
+//        if (__serial.available()) {
+//            buff[i++] = __serial.read();
+//            start = millis(); // new 2ms timeout per character
+//        }
+//    }
+//
+//    bool ok = i == size;
+//    if (!ok) delay(_get_short_timeout);
+//    return ok;
+//}
+//
+//bool rpc_software_serial_uart_master::put_bytes(uint8_t *buff, size_t size, unsigned long timeout)
+//{
+//    (void) timeout;
+//    return __serial.write(buff, size) == size;
+//}
+//
+//void rpc_software_serial_uart_slave::_flush()
+//{
+//    __serial.listen();
+//    for (int i = __serial.available(); i > 0; i--) __serial.read();
+//}
+//
+//bool rpc_software_serial_uart_slave::get_bytes(uint8_t *buff, size_t size, unsigned long timeout)
+//{
+//    (void) timeout;
+//    __serial.listen();
+//
+//    size_t i = 0;
+//    unsigned long start = millis();
+//
+//    while ((i < size) && ((millis() - start) <= 2)) {
+//        if (__serial.available()) {
+//            buff[i++] = __serial.read();
+//            start = millis(); // new 2ms timeout per character
+//        }
+//    }
+//
+//    return i == size;
+//}
+//
+//bool rpc_software_serial_uart_slave::put_bytes(uint8_t *buff, size_t size, unsigned long timeout)
+//{
+//    (void) timeout;
+//    return __serial.write(buff, size) == size;
+//}
+//#endif // ARDUINO_ARCH_AVR

@@ -8,12 +8,12 @@
 #define __OPENMVRPC__
 
 #include <Arduino.h>
-#if !defined(ARDUINO_ARCH_ESP8266) && !defined(ARDUINO_ARCH_NRF52840)
-#include <CAN.h>
-#endif
-#ifdef ARDUINO_ARCH_AVR
-#include <SoftwareSerial.h>
-#endif // ARDUINO_ARCH_AVR
+//#if !defined(ARDUINO_ARCH_ESP8266) && !defined(ARDUINO_ARCH_NRF52840)
+//#include <CAN.h>
+//#endif
+//#ifdef ARDUINO_ARCH_AVR
+//#include <SoftwareSerial.h>
+//#endif // ARDUINO_ARCH_AVR
 #include <SPI.h>
 #include <Wire.h>
 
@@ -217,41 +217,41 @@ private:
     bool __register_callback(uint32_t hash, rpc_callback_type_t type, void *value);
 };
 
-#if !defined(ARDUINO_ARCH_ESP8266) && !defined(ARDUINO_ARCH_NRF52840)
-class rpc_can_master : public rpc_master
-{
-public:
-    rpc_can_master(int message_id=0x7FF, long bit_rate=250E3) : rpc_master(), __message_id(message_id), __bit_rate(bit_rate) {}
-    ~rpc_can_master() {}
-    virtual void _flush() override;
-    virtual bool get_bytes(uint8_t *buff, size_t size, unsigned long timeout) override;
-    virtual bool put_bytes(uint8_t *data, size_t size, unsigned long timeout) override;
-    virtual void begin() override { CAN.begin(__bit_rate); CAN.filter(__message_id); }
-    virtual void end() override { CAN.end(); }
-    void set_message_id(int message_id) { __message_id = message_id; }
-    int get_message_id() { return __message_id; }
-private:
-    int __message_id;
-    long __bit_rate;
-    rpc_can_master(const rpc_can_master &);
-};
-
-class rpc_can_slave : public rpc_slave
-{
-public:
-    rpc_can_slave(int message_id=0x7FF, long bit_rate=250E3) : rpc_slave(), __message_id(message_id), __bit_rate(bit_rate) {}
-    ~rpc_can_slave() {}
-    virtual void _flush() override;
-    virtual bool get_bytes(uint8_t *buff, size_t size, unsigned long timeout) override;
-    virtual bool put_bytes(uint8_t *data, size_t size, unsigned long timeout) override;
-    virtual void begin() override { CAN.begin(__bit_rate); CAN.filter(__message_id); }
-    virtual void end() override { CAN.end(); }
-private:
-    int __message_id;
-    long __bit_rate;
-    rpc_can_slave(const rpc_can_slave &);
-};
-#endif
+//#if !defined(ARDUINO_ARCH_ESP8266) && !defined(ARDUINO_ARCH_NRF52840)
+//class rpc_can_master : public rpc_master
+//{
+//public:
+//    rpc_can_master(int message_id=0x7FF, long bit_rate=250E3) : rpc_master(), __message_id(message_id), __bit_rate(bit_rate) {}
+//    ~rpc_can_master() {}
+//    virtual void _flush() override;
+//    virtual bool get_bytes(uint8_t *buff, size_t size, unsigned long timeout) override;
+//    virtual bool put_bytes(uint8_t *data, size_t size, unsigned long timeout) override;
+//    virtual void begin() override { CAN.begin(__bit_rate); CAN.filter(__message_id); }
+//    virtual void end() override { CAN.end(); }
+//    void set_message_id(int message_id) { __message_id = message_id; }
+//    int get_message_id() { return __message_id; }
+//private:
+//    int __message_id;
+//    long __bit_rate;
+//    rpc_can_master(const rpc_can_master &);
+//};
+//
+//class rpc_can_slave : public rpc_slave
+//{
+//public:
+//    rpc_can_slave(int message_id=0x7FF, long bit_rate=250E3) : rpc_slave(), __message_id(message_id), __bit_rate(bit_rate) {}
+//    ~rpc_can_slave() {}
+//    virtual void _flush() override;
+//    virtual bool get_bytes(uint8_t *buff, size_t size, unsigned long timeout) override;
+//    virtual bool put_bytes(uint8_t *data, size_t size, unsigned long timeout) override;
+//    virtual void begin() override { CAN.begin(__bit_rate); CAN.filter(__message_id); }
+//    virtual void end() override { CAN.end(); }
+//private:
+//    int __message_id;
+//    long __bit_rate;
+//    rpc_can_slave(const rpc_can_slave &);
+//};
+//#endif
 
 class rpc_i2c_master : public rpc_master
 {
@@ -421,37 +421,37 @@ RPC_HARDWARE_SERIAL_UART_SLAVE(USB,SERIAL_PORT_USBVIRTUAL)
 
 #undef RPC_HARDWARE_SERIAL_UART_SLAVE
 
-#ifdef ARDUINO_ARCH_AVR
-class rpc_software_serial_uart_master : public rpc_master
-{
-public:
-    rpc_software_serial_uart_master(uint8_t rx_pin=2, uint8_t tx_pin=3, long baudrate=19200) : rpc_master(), __baudrate(baudrate), __serial(rx_pin, tx_pin) {}
-    ~rpc_software_serial_uart_master() {}
-    virtual void _flush() override;
-    virtual bool get_bytes(uint8_t *buff, size_t size, unsigned long timeout) override;
-    virtual bool put_bytes(uint8_t *data, size_t size, unsigned long timeout) override;
-    virtual void begin() override { __serial.begin(__baudrate); }
-private:
-    long __baudrate;
-    SoftwareSerial __serial;
-    rpc_software_serial_uart_master(const rpc_software_serial_uart_master &);
-};
-
-class rpc_software_serial_uart_slave : public rpc_slave
-{
-public:
-    rpc_software_serial_uart_slave(uint8_t rx_pin=2, uint8_t tx_pin=3, long baudrate=19200) : rpc_slave(), __baudrate(baudrate), __serial(rx_pin, tx_pin) {}
-    ~rpc_software_serial_uart_slave() {}
-    virtual void _flush() override;
-    virtual bool get_bytes(uint8_t *buff, size_t size, unsigned long timeout) override;
-    virtual bool put_bytes(uint8_t *data, size_t size, unsigned long timeout) override;
-    virtual void begin() override { __serial.begin(__baudrate); }
-private:
-    long __baudrate;
-    SoftwareSerial __serial;
-    rpc_software_serial_uart_slave(const rpc_software_serial_uart_slave &);
-};
-#endif // ARDUINO_ARCH_AVR
+//#ifdef ARDUINO_ARCH_AVR
+//class rpc_software_serial_uart_master : public rpc_master
+//{
+//public:
+//    rpc_software_serial_uart_master(uint8_t rx_pin=2, uint8_t tx_pin=3, long baudrate=19200) : rpc_master(), __baudrate(baudrate), __serial(rx_pin, tx_pin) {}
+//    ~rpc_software_serial_uart_master() {}
+//    virtual void _flush() override;
+//    virtual bool get_bytes(uint8_t *buff, size_t size, unsigned long timeout) override;
+//    virtual bool put_bytes(uint8_t *data, size_t size, unsigned long timeout) override;
+//    virtual void begin() override { __serial.begin(__baudrate); }
+//private:
+//    long __baudrate;
+//    SoftwareSerial __serial;
+//    rpc_software_serial_uart_master(const rpc_software_serial_uart_master &);
+//};
+//
+//class rpc_software_serial_uart_slave : public rpc_slave
+//{
+//public:
+//    rpc_software_serial_uart_slave(uint8_t rx_pin=2, uint8_t tx_pin=3, long baudrate=19200) : rpc_slave(), __baudrate(baudrate), __serial(rx_pin, tx_pin) {}
+//    ~rpc_software_serial_uart_slave() {}
+//    virtual void _flush() override;
+//    virtual bool get_bytes(uint8_t *buff, size_t size, unsigned long timeout) override;
+//    virtual bool put_bytes(uint8_t *data, size_t size, unsigned long timeout) override;
+//    virtual void begin() override { __serial.begin(__baudrate); }
+//private:
+//    long __baudrate;
+//    SoftwareSerial __serial;
+//    rpc_software_serial_uart_slave(const rpc_software_serial_uart_slave &);
+//};
+//#endif // ARDUINO_ARCH_AVR
 
 } // namespace openmv
 
